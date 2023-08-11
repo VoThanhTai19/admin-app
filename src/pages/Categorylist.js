@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Table } from 'antd';
+import { BiEdit } from 'react-icons/bi';
+import { AiFillDelete } from 'react-icons/ai';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProdCategories } from '../features/prodCategory/prodCategorySlice';
 
 const columns = [
     {
@@ -7,29 +12,39 @@ const columns = [
         dataIndex: 'key',
     },
     {
-        title: 'Name',
-        dataIndex: 'name',
+        title: 'Title',
+        dataIndex: 'title',
+        sorter: (a, b) => a.title.length - b.title.length,
     },
     {
-        title: 'Product',
-        dataIndex: 'product',
-    },
-    {
-        title: 'Status',
-        dataIndex: 'status',
+        title: 'Action',
+        dataIndex: 'action',
     },
 ];
-const data = [];
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        name: `Edward King ${i}`,
-        product: 32,
-        status: `London, Park Lane no. ${i}`,
-    });
-}
 
 const Categorylist = () => {
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getProdCategories());
+    }, []);
+    const prodCategoryState = useSelector((state) => state.prodCategory.prodCategories);
+    const data = [];
+    for (let i = 0; i < prodCategoryState.length; i++) {
+        data.push({
+            key: i + 1,
+            title: prodCategoryState[i].title,
+            action: (
+                <>
+                    <Link>
+                        <BiEdit className="fs-3 text-danger p-1" />
+                    </Link>
+                    <Link>
+                        <AiFillDelete className="fs-3 text-danger p-1" />
+                    </Link>
+                </>
+            ),
+        });
+    }
     return (
         <div>
             <h3 className="mb-4 title">Category List</h3>

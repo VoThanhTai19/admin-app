@@ -44,3 +44,8 @@
     font-family: Roboto !important;
     color: var(--color-828599);
 }
+.error {
+    font-size: 12px;
+    color: red;
+    margin-left: 4px;
+}

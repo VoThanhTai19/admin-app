@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Table } from 'antd';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getBrands } from '../features/brand/brandSlice';
+import { BiEdit } from 'react-icons/bi';
+import { AiFillDelete } from 'react-icons/ai';
 
 const columns = [
     {
@@ -7,29 +12,39 @@ const columns = [
         dataIndex: 'key',
     },
     {
-        title: 'Name',
-        dataIndex: 'name',
+        title: 'Title',
+        dataIndex: 'title',
+        sorter: (a, b) => a.title.length - b.title.length,
     },
     {
-        title: 'Product',
-        dataIndex: 'product',
-    },
-    {
-        title: 'Status',
-        dataIndex: 'status',
+        title: 'Action',
+        dataIndex: 'action',
     },
 ];
-const data = [];
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        name: `Edward King ${i}`,
-        product: 32,
-        status: `London, Park Lane no. ${i}`,
-    });
-}
 
 const Brandlist = () => {
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getBrands());
+    }, []);
+    const brandState = useSelector((state) => state.brand.brands);
+    const data = [];
+    for (let i = 0; i < brandState.length; i++) {
+        data.push({
+            key: i + 1,
+            title: brandState[i].title,
+            action: (
+                <>
+                    <Link>
+                        <BiEdit className="fs-3 text-danger p-1" />
+                    </Link>
+                    <Link>
+                        <AiFillDelete className="fs-3 text-danger p-1" />
+                    </Link>
+                </>
+            ),
+        });
+    }
     return (
         <div>
             <h3 className="mb-4 title">Brand List</h3>

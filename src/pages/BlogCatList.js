@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Table } from 'antd';
+import { BiEdit } from 'react-icons/bi';
+import { AiFillDelete } from 'react-icons/ai';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getBlogCategories } from '../features/blogCat/blogCatSlice';
 
 const columns = [
     {
@@ -7,29 +12,40 @@ const columns = [
         dataIndex: 'key',
     },
     {
-        title: 'Name',
-        dataIndex: 'name',
+        title: 'Title',
+        dataIndex: 'title',
+        sorter: (a, b) => a.title.length - b.title.length,
     },
+
     {
-        title: 'Product',
-        dataIndex: 'product',
-    },
-    {
-        title: 'Status',
-        dataIndex: 'status',
+        title: 'Action',
+        dataIndex: 'action',
     },
 ];
-const data = [];
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        name: `Edward King ${i}`,
-        product: 32,
-        status: `London, Park Lane no. ${i}`,
-    });
-}
 
 const BlogCatList = () => {
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getBlogCategories());
+    }, []);
+    const blogCatState = useSelector((state) => state.blogCat.blogCategories);
+    const data = [];
+    for (let i = 0; i < blogCatState.length; i++) {
+        data.push({
+            key: i + 1,
+            title: blogCatState[i].title,
+            action: (
+                <>
+                    <Link>
+                        <BiEdit className="fs-3 text-danger p-1" />
+                    </Link>
+                    <Link>
+                        <AiFillDelete className="fs-3 text-danger p-1" />
+                    </Link>
+                </>
+            ),
+        });
+    }
     return (
         <div>
             <h3 className="mb-4 title">Blog Cat List</h3>
