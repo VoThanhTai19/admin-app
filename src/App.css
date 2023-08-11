@@ -48,4 +48,6 @@
     font-size: 12px;
     color: red;
     margin-left: 4px;
+    margin-bottom: 1rem !important;
+    margin-top: 0.5rem;
 }
