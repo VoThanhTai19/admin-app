@@ -38,7 +38,7 @@ const Enquiries = () => {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getEnquiries());
-    }, []);
+    }, [dispatch]);
     const enquiryState = useSelector((state) => state.enquiry.enquiries);
     const data = [];
     for (let i = 0; i < enquiryState.length; i++) {

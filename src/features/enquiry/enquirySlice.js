@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import enquiryService from './enquiryService';
 
 const initialState = {
@@ -16,6 +16,16 @@ export const getEnquiries = createAsyncThunk('enquiry/get-enquiries', async (thu
         return thunkAPI.rejectWithValue(err);
     }
 });
+
+export const deleteEnquiry = createAsyncThunk('enquiry/delete-enquiry', async (id, thunkAPI) => {
+    try {
+        return enquiryService.deleteEnquiry(id);
+    } catch (err) {
+        return thunkAPI.rejectWithValue(err);
+    }
+});
+
+export const resetState = createAction('Reset_all');
 
 export const enquirySlice = createSlice({
     name: 'enquiries',
@@ -37,7 +47,23 @@ export const enquirySlice = createSlice({
                 state.isError = true;
                 state.isSuccess = false;
                 state.message = action.error;
-            });
+            })
+            .addCase(deleteEnquiry.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(deleteEnquiry.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isError = false;
+                state.isSuccess = true;
+                state.deletedEnquiry = action.payload;
+            })
+            .addCase(deleteEnquiry.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.isSuccess = false;
+                state.message = action.error;
+            })
+            .addCase(resetState, () => initialState);
     },
 });
 

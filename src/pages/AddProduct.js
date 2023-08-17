@@ -4,17 +4,21 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import 'react-widgets/styles.css';
 import { getProdCategories } from '../features/prodCategory/prodCategorySlice';
 import { getColors } from '../features/color/colorSlice';
 import { getBrands } from '../features/brand/brandSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import Multiselect from 'react-widgets/Multiselect';
+import { Select } from 'antd';
 import Dropzone from 'react-dropzone';
+import { deleteImg, uploadImg } from '../features/upload/uploadSlice';
+import { createProduct, resetState } from '../features/product/productSlice';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const AddProduct = () => {
     const dispatch = useDispatch();
-    // const [color, setColor] = useState([]);
+    const [color, setColor] = useState([]);
+    const navigate = useNavigate();
 
     let schema = yup.object().shape({
         title: yup.string().required('*Title is required'),
@@ -23,7 +27,8 @@ const AddProduct = () => {
         quantity: yup.number().required('*Quantity is required'),
         brand: yup.string().required('*Brand is required'),
         category: yup.string().required('*Category is required'),
-        color: yup.array().required('*Color are required'),
+        tags: yup.string().required('*Tags is required'),
+        color: yup.array().min(1, 'Pick at least one color').required('*Color are required'),
     });
     const formik = useFormik({
         initialValues: {
@@ -33,31 +38,67 @@ const AddProduct = () => {
             quantity: '',
             brand: '',
             category: '',
-            color: [],
+            tags: '',
+            color: '',
+            images: '',
         },
         validationSchema: schema,
         onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
+            // alert(JSON.stringify(values, null, 2));
+            dispatch(createProduct(values));
+            formik.resetForm();
+            setColor(null);
+            setTimeout(() => {
+                dispatch(resetState());
+
+                navigate('/admin/product-list');
+            }, 3000);
         },
+    });
+
+    const brandState = useSelector((state) => state.brand.brands);
+    const prodCatState = useSelector((state) => state.prodCategory.prodCategories);
+    const colorState = useSelector((state) => state.color.colors);
+    const imgState = useSelector((state) => state.upload.images);
+    const newProduct = useSelector((state) => state.product);
+
+    const { isSuccess, isError, isLoading, createdProduct } = newProduct;
+
+    const colorOpt = [];
+    colorState.forEach((i) => {
+        colorOpt.push({
+            label: i.title,
+            value: i._id,
+        });
+    });
+
+    const images = [];
+    imgState.forEach((i) => {
+        images.push({
+            public_id: i.public_id,
+            url: i.url,
+        });
     });
 
     useEffect(() => {
         dispatch(getBrands());
         dispatch(getProdCategories());
         dispatch(getColors());
-        // formik.values.color = color;
-    }, []);
-    const brandState = useSelector((state) => state.brand.brands);
-    const prodCatState = useSelector((state) => state.prodCategory.prodCategories);
-    const colorState = useSelector((state) => state.color.colors);
+    }, [dispatch]);
 
-    const colors = [];
-    colorState.forEach((color) => {
-        colors.push({
-            id: color._id,
-            color: color.title,
-        });
-    });
+    useEffect(() => {
+        formik.values.color = color ? color : ' ';
+        formik.values.images = images;
+    }, [color, formik.values, images]);
+
+    useEffect(() => {
+        if (isSuccess && createdProduct) {
+            toast.success('Product Added Successfully!!!');
+        }
+        if (isError) {
+            toast.error('Somthing Went Wrong!!!');
+        }
+    }, [isSuccess, isError, isLoading, createdProduct]);
 
     return (
         <div>
@@ -104,7 +145,7 @@ const AddProduct = () => {
                         onBlur={formik.handleBlur('brand')}
                         value={formik.values.brand}
                     >
-                        <option value="selected" disabled>
+                        <option value="" disabled>
                             Select Product Brand
                         </option>
                         {brandState.map((brand) => {
@@ -129,7 +170,7 @@ const AddProduct = () => {
                         onBlur={formik.handleBlur('category')}
                         value={formik.values.category}
                     >
-                        <option value="selected" disabled>
+                        <option value="" disabled>
                             Select Product Category
                         </option>
                         {prodCatState.map((prodCat) => {
@@ -144,29 +185,50 @@ const AddProduct = () => {
                 </div>
                 <div className="error">{formik.touched.category && formik.errors.category}</div>
 
-                <Multiselect
-                    name="color"
-                    dataKey="id"
-                    textField="color"
-                    data={colors}
-                    // onChange={(e) => setColor(e)}
-                    onChange={formik.handleChange('color')}
-                    value={formik.values.color}
-                    onBlur={formik.handleBlur('color')}
+                <div className="form-floating mb-3">
+                    <select
+                        className="form-select"
+                        id="product_tags"
+                        aria-label="Floating label select example"
+                        name="tags"
+                        onChange={formik.handleChange('tags')}
+                        onBlur={formik.handleBlur('tags')}
+                        value={formik.values.tags}
+                    >
+                        <option value="" disabled>
+                            Select Product Tags
+                        </option>
+                        <option value="featured">Featured</option>
+                        <option value="popular">Poplular</option>
+                        <option value="special">Special</option>
+                    </select>
+                    <label htmlFor="product_tags">Select Product Tags</label>
+                </div>
+                <div className="error">{formik.touched.tags && formik.errors.tags}</div>
+
+                <Select
+                    mode="multiple"
+                    allowClear
+                    className="w-100"
+                    placeholder="Select colors"
+                    defaultValue={color}
+                    onChange={(e) => setColor(e)}
+                    options={colorOpt}
                 />
                 <div className="error">{formik.touched.color && formik.errors.color}</div>
-                <ReactQuill
-                    theme="snow"
-                    name="description"
-                    onChange={formik.handleChange('description')}
-                    onBlur={formik.handleBlur('description')}
-                    value={formik.values.description}
-                />
+                <div>
+                    <ReactQuill
+                        theme="snow"
+                        name="description"
+                        onChange={formik.handleChange('description')}
+                        value={formik.values.description}
+                    />
+                </div>
                 <div className="error">
                     {formik.touched.description && formik.errors.description}
                 </div>
                 <div className="bg-white border-1 p-5 text-center mb-3">
-                    <Dropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+                    <Dropzone onDrop={(acceptedFiles) => dispatch(uploadImg(acceptedFiles))}>
                         {({ getRootProps, getInputProps }) => (
                             <section>
                                 <div {...getRootProps()}>
@@ -176,6 +238,21 @@ const AddProduct = () => {
                             </section>
                         )}
                     </Dropzone>
+                </div>
+                <div className="showImages mb-3 row">
+                    {imgState.map((img) => {
+                        return (
+                            <div key={img.asset_id} className="col-4 position-relative">
+                                <button
+                                    type="button"
+                                    onClick={() => dispatch(deleteImg(img.public_id))}
+                                    className="btn bg-white rounded-circle p-2 btn-close position-absolute"
+                                    style={{ right: '15px', top: '5px' }}
+                                ></button>
+                                <img className="img-fluid w-100" src={img.url} alt="" />
+                            </div>
+                        );
+                    })}
                 </div>
 
                 <button type="submit" className="btn btn-success border-0 rounded-3 px-4 py-2">

@@ -26,7 +26,7 @@ const Categorylist = () => {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getProdCategories());
-    }, []);
+    }, [dispatch]);
     const prodCategoryState = useSelector((state) => state.prodCategory.prodCategories);
     const data = [];
     for (let i = 0; i < prodCategoryState.length; i++) {

@@ -6,6 +6,7 @@ import {
     AiOutlineUser,
     AiOutlineBgColors,
 } from 'react-icons/ai';
+import { RiCoupon5Line } from 'react-icons/ri';
 import { BiCategoryAlt, BiLogoBlogger } from 'react-icons/bi';
 import { SiBrandfolder } from 'react-icons/si';
 import { FaClipboardList } from 'react-icons/fa';
@@ -14,6 +15,8 @@ import { ImBlog } from 'react-icons/im';
 import { Layout, Menu, Button, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const { Header, Sider, Content } = Layout;
 
@@ -103,6 +106,23 @@ const MainLayout = () => {
                             key: 'orders',
                             icon: <FaClipboardList className="fs-5" />,
                             label: 'Orders',
+                        },
+                        {
+                            key: 'marketing',
+                            icon: <RiCoupon5Line className="fs-5" />,
+                            label: 'Marketing',
+                            children: [
+                                {
+                                    key: 'coupon',
+                                    icon: <ImBlog className="fs-5" />,
+                                    label: 'Coupon',
+                                },
+                                {
+                                    key: 'coupon-list',
+                                    icon: <RiCoupon5Line className="fs-5" />,
+                                    label: 'Coupon List',
+                                },
+                            ],
                         },
                         {
                             key: 'blos',
@@ -197,6 +217,17 @@ const MainLayout = () => {
                         background: colorBgContainer,
                     }}
                 >
+                    <ToastContainer
+                        position="top-right"
+                        autoClose={250}
+                        hideProgressBar={false}
+                        newestOnTop={true}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        theme="light"
+                    />
                     <Outlet />
                 </Content>
             </Layout>

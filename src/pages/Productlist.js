@@ -46,18 +46,22 @@ const Productlist = () => {
 
     useEffect(() => {
         dispatch(getProducts());
-    }, []);
+    }, [dispatch]);
 
     const productState = useSelector((state) => state.product.products);
 
     const data = [];
     for (let i = 0; i < productState.length; i++) {
+        console.log(productState[i]);
+
         data.push({
             key: i + 1,
             title: productState[i].title,
             brand: productState[i].brand,
             category: productState[i].category,
-            color: productState[i].color,
+            color: productState[i].color.map((i, index) => {
+                return <p key={index}>{i}</p>;
+            }),
             price: productState[i].price,
             action: (
                 <>

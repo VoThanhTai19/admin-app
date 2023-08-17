@@ -26,7 +26,7 @@ const Colorlist = () => {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getColors());
-    }, []);
+    }, [dispatch]);
 
     const colorState = useSelector((state) => state.color.colors);
 

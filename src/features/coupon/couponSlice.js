@@ -1,33 +1,33 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
-import brandService from './brandService';
+import couponService from './couponService';
 
 const initialState = {
-    brands: [],
+    coupons: [],
     isLoading: false,
     isError: false,
     isSuccess: false,
     message: '',
 };
 
-export const getBrands = createAsyncThunk('brand/get-brands', async (thunkAPI) => {
+export const getCoupons = createAsyncThunk('coupon/get-brands', async (thunkAPI) => {
     try {
-        return brandService.getBrands();
+        return couponService.getCoupons();
     } catch (err) {
         return thunkAPI.rejectWithValue(err);
     }
 });
 
-export const createBrand = createAsyncThunk('brand/create-brand', async (data, thunkAPI) => {
+export const createCoupon = createAsyncThunk('coupon/create-coupon', async (data, thunkAPI) => {
     try {
-        return brandService.createBrand(data);
+        return couponService.createCoupon(data);
     } catch (err) {
         return thunkAPI.rejectWithValue(err);
     }
 });
 
-export const deleteBrand = createAsyncThunk('brand/delete-brand', async (id, thunkAPI) => {
+export const deleteCoupon = createAsyncThunk('coupon/delete-coupon', async (id, thunkAPI) => {
     try {
-        return brandService.deleteBrand(id);
+        return couponService.deleteCoupon(id);
     } catch (err) {
         return thunkAPI.rejectWithValue(err);
     }
@@ -36,51 +36,51 @@ export const deleteBrand = createAsyncThunk('brand/delete-brand', async (id, thu
 export const resetState = createAction('Reset_all');
 
 export const brandSlice = createSlice({
-    name: 'brands',
+    name: 'coupons',
     initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(getBrands.pending, (state) => {
+            .addCase(getCoupons.pending, (state) => {
                 state.isLoading = true;
             })
-            .addCase(getBrands.fulfilled, (state, action) => {
+            .addCase(getCoupons.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isError = false;
                 state.isSuccess = true;
-                state.brands = action.payload;
+                state.coupons = action.payload;
             })
-            .addCase(getBrands.rejected, (state, action) => {
+            .addCase(getCoupons.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.isSuccess = false;
                 state.message = action.error;
             })
-            .addCase(createBrand.pending, (state) => {
+            .addCase(createCoupon.pending, (state) => {
                 state.isLoading = true;
             })
-            .addCase(createBrand.fulfilled, (state, action) => {
+            .addCase(createCoupon.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isError = false;
                 state.isSuccess = true;
-                state.createdBrand = action.payload;
+                state.createdCoupon = action.payload;
             })
-            .addCase(createBrand.rejected, (state, action) => {
+            .addCase(createCoupon.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.isSuccess = false;
                 state.message = action.error;
             })
-            .addCase(deleteBrand.pending, (state) => {
+            .addCase(deleteCoupon.pending, (state) => {
                 state.isLoading = true;
             })
-            .addCase(deleteBrand.fulfilled, (state, action) => {
+            .addCase(deleteCoupon.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isError = false;
                 state.isSuccess = true;
-                state.deletedBrand = action.payload;
+                state.deletedCoupon = action.payload;
             })
-            .addCase(deleteBrand.rejected, (state, action) => {
+            .addCase(deleteCoupon.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.isSuccess = false;
