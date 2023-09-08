@@ -11,14 +11,28 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Select } from 'antd';
 import Dropzone from 'react-dropzone';
 import { deleteImg, uploadImg } from '../features/upload/uploadSlice';
-import { createProduct, resetState } from '../features/product/productSlice';
-import { useNavigate } from 'react-router-dom';
+import {
+    createProduct,
+    getProduct,
+    resetState,
+    updateProduct,
+} from '../features/product/productSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const AddProduct = () => {
     const dispatch = useDispatch();
     const [color, setColor] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
+    const getProductId = location.pathname.split('/')[3];
+    const brandState = useSelector((state) => state.brand.brands);
+    const prodCatState = useSelector((state) => state.prodCategory.prodCategories);
+    const colorState = useSelector((state) => state.color.colors);
+    const imgState = useSelector((state) => state.upload.images);
+    const newProduct = useSelector((state) => state.product);
+
+    const { isSuccess, isError, isLoading, createdProduct, updatedProduct } = newProduct;
 
     let schema = yup.object().shape({
         title: yup.string().required('*Title is required'),
@@ -31,6 +45,7 @@ const AddProduct = () => {
         color: yup.array().min(1, 'Pick at least one color').required('*Color are required'),
     });
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
             title: '',
             description: '',
@@ -45,24 +60,20 @@ const AddProduct = () => {
         validationSchema: schema,
         onSubmit: (values) => {
             // alert(JSON.stringify(values, null, 2));
-            dispatch(createProduct(values));
-            formik.resetForm();
+            if (getProductId !== undefined) {
+                dispatch(updateProduct({ id: getProductId, productData: values }));
+            } else {
+                dispatch(createProduct(values));
+                formik.resetForm();
+            }
             setColor(null);
             setTimeout(() => {
                 dispatch(resetState());
 
-                navigate('/admin/product-list');
+                // navigate('/admin/product-list');
             }, 3000);
         },
     });
-
-    const brandState = useSelector((state) => state.brand.brands);
-    const prodCatState = useSelector((state) => state.prodCategory.prodCategories);
-    const colorState = useSelector((state) => state.color.colors);
-    const imgState = useSelector((state) => state.upload.images);
-    const newProduct = useSelector((state) => state.product);
-
-    const { isSuccess, isError, isLoading, createdProduct } = newProduct;
 
     const colorOpt = [];
     colorState.forEach((i) => {
@@ -95,10 +106,21 @@ const AddProduct = () => {
         if (isSuccess && createdProduct) {
             toast.success('Product Added Successfully!!!');
         }
-        if (isError) {
-            toast.error('Somthing Went Wrong!!!');
+        if (isSuccess && updatedProduct) {
+            toast.success('Product Updated Successfully!!!');
         }
-    }, [isSuccess, isError, isLoading, createdProduct]);
+        if (isError) {
+            toast.error('Something Went Wrong!!!');
+        }
+    }, [isSuccess, isError, isLoading, createdProduct, updatedProduct]);
+
+    useEffect(() => {
+        if (getProductId !== undefined) {
+            dispatch(getProduct(getProductId));
+        } else {
+            dispatch(resetState());
+        }
+    }, [dispatch, getProductId]);
 
     return (
         <div>
@@ -109,8 +131,7 @@ const AddProduct = () => {
                     label="Enter Product Title"
                     i_id="product_title"
                     name="title"
-                    onChange={formik.handleChange('title')}
-                    onBlur={formik.handleBlur('title')}
+                    onChange={formik.handleChange}
                     value={formik.values.title}
                 />
                 <div className="error">{formik.touched.title && formik.errors.title}</div>
@@ -119,8 +140,7 @@ const AddProduct = () => {
                     label="Enter Product Price"
                     i_id="product_price"
                     name="price"
-                    onChange={formik.handleChange('price')}
-                    onBlur={formik.handleBlur('price')}
+                    onChange={formik.handleChange}
                     value={formik.values.price}
                 />
                 <div className="error">{formik.touched.price && formik.errors.price}</div>
@@ -129,8 +149,7 @@ const AddProduct = () => {
                     label="Enter Product Quantity"
                     i_id="product_quantity"
                     name="quantity"
-                    onChange={formik.handleChange('quantity')}
-                    onBlur={formik.handleBlur('quantity')}
+                    onChange={formik.handleChange}
                     value={formik.values.quantity}
                 />
                 <div className="error">{formik.touched.quantity && formik.errors.quantity}</div>
@@ -141,8 +160,7 @@ const AddProduct = () => {
                         id="product_brand"
                         aria-label="Floating label select example"
                         name="brand"
-                        onChange={formik.handleChange('brand')}
-                        onBlur={formik.handleBlur('brand')}
+                        onChange={formik.handleChange}
                         value={formik.values.brand}
                     >
                         <option value="" disabled>
@@ -166,8 +184,7 @@ const AddProduct = () => {
                         id="product_category"
                         aria-label="Floating label select example"
                         name="category"
-                        onChange={formik.handleChange('category')}
-                        onBlur={formik.handleBlur('category')}
+                        onChange={formik.handleChange}
                         value={formik.values.category}
                     >
                         <option value="" disabled>
@@ -191,8 +208,7 @@ const AddProduct = () => {
                         id="product_tags"
                         aria-label="Floating label select example"
                         name="tags"
-                        onChange={formik.handleChange('tags')}
-                        onBlur={formik.handleBlur('tags')}
+                        onChange={formik.handleChange}
                         value={formik.values.tags}
                     >
                         <option value="" disabled>
@@ -242,7 +258,7 @@ const AddProduct = () => {
                 <div className="showImages mb-3 row">
                     {imgState.map((img) => {
                         return (
-                            <div key={img.asset_id} className="col-4 position-relative">
+                            <div key={img.public_id} className="col-4 position-relative">
                                 <button
                                     type="button"
                                     onClick={() => dispatch(deleteImg(img.public_id))}

@@ -27,14 +27,14 @@ const Login = () => {
 
     const authState = useSelector((state) => state);
 
-    const { user, isLoading, isError, isSuccess, message } = authState.auth;
+    const { user, isLoading, isError, isSuccess } = authState.auth;
     useEffect(() => {
         if (isSuccess) {
             navigate('admin');
         } else {
             navigate('');
         }
-    }, [user, isLoading, isError, isSuccess]);
+    }, [user, isLoading, isError, isSuccess, navigate]);
 
     return (
         <div

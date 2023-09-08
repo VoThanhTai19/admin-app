@@ -7,8 +7,22 @@ export const getBrands = async () => {
     return respone.data;
 };
 
+export const getBrand = async (id) => {
+    const respone = await axios.get(`${base_url}/brand/${id}`);
+    return respone.data;
+};
+
 export const createBrand = async (data) => {
     const res = await axios.post(`${base_url}/brand/new-brand`, data, config);
+    return res.data;
+};
+
+export const updateBrand = async (data) => {
+    const res = await axios.put(
+        `${base_url}/brand/update/${data.brandId}`,
+        { title: data.brandName.title },
+        config,
+    );
     return res.data;
 };
 
@@ -19,7 +33,9 @@ export const deleteBrand = async (id) => {
 
 const brandService = {
     getBrands,
+    getBrand,
     createBrand,
+    updateBrand,
     deleteBrand,
 };
 

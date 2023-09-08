@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table } from 'antd';
-import { AiFillDelete } from 'react-icons/ai';
+import { AiFillDelete, AiOutlineEye } from 'react-icons/ai';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getEnquiries } from '../features/enquiry/enquirySlice';
-
+import { getEnquiries, deleteEnquiry, resetState } from '../features/enquiry/enquirySlice';
+import CustomModal from '../components/CustomModal';
+import { toast } from 'react-toastify';
 const columns = [
     {
         title: 'No',
@@ -36,10 +37,46 @@ const columns = [
 
 const Enquiries = () => {
     const dispatch = useDispatch();
+    const [open, setOpen] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [enquiryId, setEnquiryId] = useState('');
+    const enquiryState = useSelector((state) => state.enquiry.enquiries);
+    const newEnquiry = useSelector((state) => state.enquiry);
+
+    const { isSuccess, isLoading, isError, deletedEnquiry } = newEnquiry;
+
     useEffect(() => {
         dispatch(getEnquiries());
     }, [dispatch]);
-    const enquiryState = useSelector((state) => state.enquiry.enquiries);
+    const showModal = (id) => {
+        setEnquiryId(id);
+        setOpen(true);
+    };
+
+    const hideModal = () => {
+        setOpen(false);
+    };
+
+    const handleOk = (id) => {
+        dispatch(deleteEnquiry(id));
+        setConfirmLoading(true);
+        setTimeout(() => {
+            setOpen(false);
+            setConfirmLoading(false);
+            dispatch(resetState());
+            dispatch(getEnquiries());
+        }, 2000);
+    };
+
+    useEffect(() => {
+        if (isSuccess && deletedEnquiry) {
+            toast.success('Enquiry Deleted Successfully!!!');
+        }
+        if (isError) {
+            toast.error('Something Went Wrong!!!');
+        }
+    }, [isSuccess, isLoading, isError, deletedEnquiry]);
+
     const data = [];
     for (let i = 0; i < enquiryState.length; i++) {
         data.push({
@@ -54,19 +91,25 @@ const Enquiries = () => {
                         id="enquiry_status"
                         aria-label="Floating label select example"
                     >
-                        <option value="selected" disabled>
+                        <option value="" disabled>
                             Select Status
                         </option>
-                        <option value="1">{enquiryState[i].status}</option>
+                        <option value={enquiryState[i].status}>{enquiryState[i].status}</option>
                     </select>
                     <label htmlFor="enquiry_status">Select Status</label>
                 </div>
             ),
             action: (
                 <>
-                    <Link>
-                        <AiFillDelete className="fs-3 text-danger p-1" />
+                    <Link to={`/admin/enquiries/${enquiryState[i]._id}`}>
+                        <AiOutlineEye className="fs-3 text-danger p-1" />
                     </Link>
+                    <button className="bg-transparent border-0">
+                        <AiFillDelete
+                            onClick={() => showModal(enquiryState[i]._id)}
+                            className="fs-3 text-danger p-1"
+                        />
+                    </button>
                 </>
             ),
         });
@@ -77,6 +120,15 @@ const Enquiries = () => {
             <div>
                 <Table columns={columns} dataSource={data} />
             </div>
+            <CustomModal
+                onCancel={hideModal}
+                open={open}
+                onOk={() => {
+                    handleOk(enquiryId);
+                }}
+                confirmLoading={confirmLoading}
+                title="Are you sure you want to delete this color?"
+            />
         </div>
     );
 };

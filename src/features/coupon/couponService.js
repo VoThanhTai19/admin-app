@@ -7,8 +7,18 @@ export const getCoupons = async () => {
     return respone.data;
 };
 
+export const getCoupon = async (id) => {
+    const respone = await axios.get(`${base_url}/coupon/${id}`);
+    return respone.data;
+};
+
 export const createCoupon = async (data) => {
     const res = await axios.post(`${base_url}/coupon/create`, data, config);
+    return res.data;
+};
+
+export const updateCoupon = async (data) => {
+    const res = await axios.put(`${base_url}/coupon/update/${data.id}`, data.couponData, config);
     return res.data;
 };
 
@@ -19,7 +29,9 @@ export const deleteCoupon = async (id) => {
 
 const couponService = {
     getCoupons,
+    getCoupon,
     createCoupon,
+    updateCoupon,
     deleteCoupon,
 };
 

@@ -11,7 +11,15 @@ const initialState = {
 
 export const getColors = createAsyncThunk('color/get-colors', async (thunkAPI) => {
     try {
-        return colorService.getColors();
+        return await colorService.getColors();
+    } catch (err) {
+        return thunkAPI.rejectWithValue(err);
+    }
+});
+
+export const getColor = createAsyncThunk('color/get-color', async (id, thunkAPI) => {
+    try {
+        return await colorService.getColor(id);
     } catch (err) {
         return thunkAPI.rejectWithValue(err);
     }
@@ -19,7 +27,15 @@ export const getColors = createAsyncThunk('color/get-colors', async (thunkAPI) =
 
 export const createColor = createAsyncThunk('color/create-color', async (data, thunkAPI) => {
     try {
-        return colorService.createColor(data);
+        return await colorService.createColor(data);
+    } catch (err) {
+        return thunkAPI.rejectWithValue(err);
+    }
+});
+
+export const updateColor = createAsyncThunk('color/update-color', async (data, thunkAPI) => {
+    try {
+        return await colorService.updateColor(data);
     } catch (err) {
         return thunkAPI.rejectWithValue(err);
     }
@@ -27,7 +43,7 @@ export const createColor = createAsyncThunk('color/create-color', async (data, t
 
 export const deleteColor = createAsyncThunk('color/delete-color', async (id, thunkAPI) => {
     try {
-        return colorService.deleteColor(id);
+        return await colorService.deleteColor(id);
     } catch (err) {
         return thunkAPI.rejectWithValue(err);
     }
@@ -56,6 +72,21 @@ export const colorSlice = createSlice({
                 state.isSuccess = false;
                 state.message = action.error;
             })
+            .addCase(getColor.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(getColor.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isError = false;
+                state.isSuccess = true;
+                state.colorName = action.payload.title;
+            })
+            .addCase(getColor.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.isSuccess = false;
+                state.message = action.error;
+            })
             .addCase(createColor.pending, (state) => {
                 state.isLoading = true;
             })
@@ -66,6 +97,21 @@ export const colorSlice = createSlice({
                 state.createdColor = action.payload;
             })
             .addCase(createColor.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.isSuccess = false;
+                state.message = action.error;
+            })
+            .addCase(updateColor.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(updateColor.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isError = false;
+                state.isSuccess = true;
+                state.updatedColor = action.payload;
+            })
+            .addCase(updateColor.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.isSuccess = false;

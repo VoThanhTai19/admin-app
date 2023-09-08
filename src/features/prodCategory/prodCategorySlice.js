@@ -13,7 +13,18 @@ export const getProdCategories = createAsyncThunk(
     'category/get-prod-categories',
     async (thunkAPI) => {
         try {
-            return prodCategoryService.getProdCategories();
+            return await prodCategoryService.getProdCategories();
+        } catch (err) {
+            return thunkAPI.rejectWithValue(err);
+        }
+    },
+);
+
+export const getProdCategory = createAsyncThunk(
+    'category/get-prod-category',
+    async (id, thunkAPI) => {
+        try {
+            return await prodCategoryService.getProdCategory(id);
         } catch (err) {
             return thunkAPI.rejectWithValue(err);
         }
@@ -25,6 +36,17 @@ export const createProdCategory = createAsyncThunk(
     async (data, thunkAPI) => {
         try {
             return prodCategoryService.createProdCategory(data);
+        } catch (err) {
+            return thunkAPI.rejectWithValue(err);
+        }
+    },
+);
+
+export const updateProdCategory = createAsyncThunk(
+    'category/update-prod-category',
+    async (data, thunkAPI) => {
+        try {
+            return prodCategoryService.updateProdCategory(data);
         } catch (err) {
             return thunkAPI.rejectWithValue(err);
         }
@@ -65,6 +87,21 @@ export const prodCategorySlice = createSlice({
                 state.isSuccess = false;
                 state.message = action.error;
             })
+            .addCase(getProdCategory.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(getProdCategory.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isError = false;
+                state.isSuccess = true;
+                state.prodCategoryName = action.payload.title;
+            })
+            .addCase(getProdCategory.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.isSuccess = false;
+                state.message = action.error;
+            })
             .addCase(createProdCategory.pending, (state) => {
                 state.isLoading = true;
             })
@@ -75,6 +112,21 @@ export const prodCategorySlice = createSlice({
                 state.createdProdCategory = action.payload;
             })
             .addCase(createProdCategory.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.isSuccess = false;
+                state.message = action.error;
+            })
+            .addCase(updateProdCategory.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(updateProdCategory.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isError = false;
+                state.isSuccess = true;
+                state.updatedProdCategory = action.payload;
+            })
+            .addCase(updateProdCategory.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
                 state.isSuccess = false;

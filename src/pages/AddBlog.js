@@ -2,49 +2,65 @@ import React, { useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import CustomInput from '../components/CustomInput';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { deleteImg, uploadImg } from '../features/upload/uploadSlice';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import Dropzone from 'react-dropzone';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { createBlog } from '../features/blogs/blogSlice';
-import { getBlogCategories, resetState } from '../features/blogCat/blogCatSlice';
+import { createBlog, getBlog, resetState, updateBlog } from '../features/blogs/blogSlice';
+import { getBlogCategories } from '../features/blogCat/blogCatSlice';
 
 const AddBlog = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
 
+    const getBlogId = location.pathname.split('/')[3];
+    const blogCatState = useSelector((state) => state.blogCat.blogCategories);
+    const imgState = useSelector((state) => state.upload.images);
+    const newBlog = useSelector((state) => state.blog);
+
+    const {
+        isSuccess,
+        isError,
+        isLoading,
+        createdBlog,
+        updatedBlog,
+        blogName,
+        blogDesc,
+        blogCategory,
+        blogImages,
+    } = newBlog;
     let schema = yup.object().shape({
         title: yup.string().required('*Title is required'),
         description: yup.string().required('*Description is required'),
         category: yup.string().required('*Category is required'),
     });
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
-            title: '',
-            description: '',
-            category: '',
-            images: '',
+            title: blogName || '',
+            description: blogDesc || '',
+            category: blogCategory || '',
+            images: blogImages || '',
         },
         validationSchema: schema,
         onSubmit: (values) => {
-            // alert(JSON.stringify(values, null, 2));
-            dispatch(createBlog(values));
-            formik.resetForm();
-            setTimeout(() => {
-                dispatch(resetState());
-                navigate('/admin/blog-list');
-            }, 3000);
+            alert(JSON.stringify(values, null, 2));
+            // if (getBlogId !== undefined) {
+            //     dispatch(updateBlog({ id: getBlogId, blogData: values }));
+            // } else {
+            //     dispatch(createBlog(values));
+            //     formik.resetForm();
+            // }
+            // setTimeout(() => {
+            //     dispatch(resetState());
+            //     navigate('/admin/blog-list');
+            // }, 3000);
         },
     });
-
-    const blogCatState = useSelector((state) => state.blogCat.blogCategories);
-    const imgState = useSelector((state) => state.upload.images);
-    const newBlog = useSelector((state) => state.blog);
-
-    const { isSuccess, isError, isLoading, createdBlog } = newBlog;
 
     const images = [];
     imgState.forEach((i) => {
@@ -66,14 +82,25 @@ const AddBlog = () => {
         if (isSuccess && createdBlog) {
             toast.success('Blog Added Successfully!!!');
         }
-        if (isError) {
-            toast.error('Somthing Went Wrong!!!');
+        if (isSuccess && updatedBlog) {
+            toast.success('Blog Updated Successfully!!!');
         }
-    }, [isSuccess, isError, isLoading, createdBlog]);
+        if (isError) {
+            toast.error('Something Went Wrong!!!');
+        }
+    }, [isSuccess, isError, isLoading, createdBlog, updatedBlog]);
+
+    useEffect(() => {
+        if (getBlogId !== undefined) {
+            dispatch(getBlog(getBlogId));
+        } else {
+            dispatch(resetState());
+        }
+    }, [dispatch, getBlogId]);
 
     return (
         <div>
-            <h3 className="mb-4 title">Add Blog</h3>
+            <h3 className="mb-4 title">{getBlogId !== undefined ? 'Edit' : 'Add'} Blog</h3>
 
             <div>
                 <form action="" onSubmit={formik.handleSubmit}>
@@ -157,7 +184,7 @@ const AddBlog = () => {
                         })}
                     </div>
                     <button type="submit" className="btn btn-success border-0 rounded-3 px-4 py-2">
-                        Add Blog
+                        {getBlogId !== undefined ? 'Edit' : 'Add'} Blog
                     </button>
                 </form>
             </div>

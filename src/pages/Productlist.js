@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProducts } from '../features/product/productSlice';
+import { deleteProduct, getProducts, resetState } from '../features/product/productSlice';
 import { BiEdit } from 'react-icons/bi';
 import { AiFillDelete } from 'react-icons/ai';
-
+import CustomModal from '../components/CustomModal';
+import { toast } from 'react-toastify';
 const columns = [
     {
         title: 'No',
@@ -43,17 +44,48 @@ const columns = [
 
 const Productlist = () => {
     const dispatch = useDispatch();
+    const [open, setOpen] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [productId, setProductId] = useState('');
+    const productState = useSelector((state) => state.product.products);
+    const newProduct = useSelector((state) => state.product);
+    const { isError, isSuccess, isLoading, deletedProduct } = newProduct;
 
     useEffect(() => {
         dispatch(getProducts());
     }, [dispatch]);
 
-    const productState = useSelector((state) => state.product.products);
+    const showModal = (id) => {
+        setProductId(id);
+        setOpen(true);
+    };
+
+    const hideModal = () => {
+        setOpen(false);
+    };
+
+    const handleOk = (id) => {
+        dispatch(deleteProduct(id));
+        setConfirmLoading(true);
+        setTimeout(() => {
+            setOpen(false);
+            setConfirmLoading(false);
+            dispatch(resetState());
+            dispatch(getProducts());
+        }, 2000);
+    };
+
+    useEffect(() => {
+        if (isSuccess && deletedProduct) {
+            toast.success('Blog Deleted Successfully!!!');
+        }
+        if (isError) {
+            toast.error('Something Went Wrong!!!');
+        }
+    }, [isError, isLoading, isSuccess, deletedProduct]);
 
     const data = [];
     for (let i = 0; i < productState.length; i++) {
-        console.log(productState[i]);
-
         data.push({
             key: i + 1,
             title: productState[i].title,
@@ -65,12 +97,15 @@ const Productlist = () => {
             price: productState[i].price,
             action: (
                 <>
-                    <Link>
+                    <Link to={`/admin/product/${productState[i]._id}`}>
                         <BiEdit className="fs-3 text-danger p-1" />
                     </Link>
-                    <Link>
-                        <AiFillDelete className="fs-3 text-danger p-1" />
-                    </Link>
+                    <button className="bg-transparent border-0">
+                        <AiFillDelete
+                            onClick={() => showModal(productState[i]._id)}
+                            className="fs-3 text-danger p-1"
+                        />
+                    </button>
                 </>
             ),
         });
@@ -81,6 +116,15 @@ const Productlist = () => {
             <div>
                 <Table columns={columns} dataSource={data} />
             </div>
+            <CustomModal
+                onCancel={hideModal}
+                open={open}
+                onOk={() => {
+                    handleOk(productId);
+                }}
+                confirmLoading={confirmLoading}
+                title="Are you sure you want to delete this product?"
+            />
         </div>
     );
 };

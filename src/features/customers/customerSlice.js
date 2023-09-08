@@ -11,7 +11,7 @@ const initialState = {
 
 export const getUsers = createAsyncThunk('customer/get-customers', async (thunkAPI) => {
     try {
-        return customerService.getUsers();
+        return await customerService.getUsers();
     } catch (err) {
         return thunkAPI.rejectWithValue(err);
     }

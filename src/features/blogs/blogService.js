@@ -7,8 +7,18 @@ export const getBlogs = async () => {
     return respone.data;
 };
 
+export const getBlog = async (id) => {
+    const respone = await axios.get(`${base_url}/blog/${id}`);
+    return respone.data;
+};
+
 export const createBlog = async (data) => {
     const res = await axios.post(`${base_url}/blog/new-blog`, data, config);
+    return res.data;
+};
+
+export const updateBlog = async (data) => {
+    const res = await axios.put(`${base_url}/blog/update/${data.id}`, data.blogData, config);
     return res.data;
 };
 
@@ -19,7 +29,9 @@ export const deleteBlog = async (id) => {
 
 const blogService = {
     getBlogs,
+    getBlog,
     createBlog,
+    updateBlog,
     deleteBlog,
 };
 

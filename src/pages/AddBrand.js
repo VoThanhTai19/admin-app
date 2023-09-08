@@ -3,27 +3,40 @@ import CustomInput from '../components/CustomInput';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { createBrand, resetState } from '../features/brand/brandSlice';
+import { createBrand, getBrand, resetState, updateBrand } from '../features/brand/brandSlice';
 
 const AddBrand = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
+    const location = useLocation();
+    const getBrandId = location.pathname.split('/')[3];
+    const newBrand = useSelector((state) => state.brand);
+    const { isSuccess, isError, isLoading, createdBrand, brandName, updatedBrand } = newBrand;
     let schema = yup.object().shape({
         title: yup.string().required('*Title is required'),
     });
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
-            title: '',
+            title: brandName || '',
         },
         validationSchema: schema,
         onSubmit: (values) => {
-            // alert(JSON.stringify(values, null, 2));
-            dispatch(createBrand(values));
-            formik.resetForm();
+            if (getBrandId !== undefined) {
+                // alert(JSON.stringify(values, null, 2));
+                dispatch(
+                    updateBrand({
+                        brandId: getBrandId,
+                        brandName: values,
+                    }),
+                );
+            } else {
+                dispatch(createBrand(values));
+                formik.resetForm();
+            }
 
             setTimeout(() => {
                 dispatch(resetState());
@@ -33,20 +46,29 @@ const AddBrand = () => {
         },
     });
 
-    const newBrand = useSelector((state) => state.brand);
-    const { isSuccess, isError, isLoading, createdBrand } = newBrand;
     useEffect(() => {
         if (isSuccess && createdBrand) {
             toast.success('Brand Added Successfully!!!');
         }
-        if (isError) {
-            toast.error('Somthing Went Wrong!!!');
+        if (isSuccess && updatedBrand) {
+            toast.success('Brand Updated Successfully!!!');
         }
-    }, [isSuccess, isError, isLoading, createdBrand]);
+        if (isError) {
+            toast.error('Something Went Wrong!!!');
+        }
+    }, [isSuccess, isError, isLoading, createdBrand, updatedBrand]);
+
+    useEffect(() => {
+        if (getBrandId !== undefined) {
+            dispatch(getBrand(getBrandId));
+        } else {
+            dispatch(resetState());
+        }
+    }, [dispatch, getBrandId]);
 
     return (
         <div>
-            <h3 className="mb-4 title">Add Brand</h3>
+            <h3 className="mb-4 title">{getBrandId !== undefined ? 'Edit' : 'Add'} Brand</h3>
 
             <div>
                 <form action="" onSubmit={formik.handleSubmit}>
@@ -63,7 +85,7 @@ const AddBrand = () => {
                     <div className="error">{formik.touched.title && formik.errors.title}</div>
 
                     <button type="submit" className="btn btn-success border-0 rounded-3 px-4 py-2">
-                        Add Brand
+                        {getBrandId !== undefined ? 'Edit' : 'Add'} Brand
                     </button>
                 </form>
             </div>

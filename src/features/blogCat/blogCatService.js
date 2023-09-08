@@ -7,8 +7,22 @@ export const getBlogCategories = async () => {
     return respone.data;
 };
 
+export const getBlogCategory = async (id) => {
+    const respone = await axios.get(`${base_url}/blog-category/${id}`);
+    return respone.data;
+};
+
 export const createBlogCategory = async (data) => {
     const res = await axios.post(`${base_url}/blog-category/new-blog-category`, data, config);
+    return res.data;
+};
+
+export const updateBlogCategory = async (data) => {
+    const res = await axios.put(
+        `${base_url}/blog-category/update/${data.id}`,
+        { title: data.blogCatData.title },
+        config,
+    );
     return res.data;
 };
 
@@ -19,7 +33,9 @@ export const deleteBlogCategory = async (id) => {
 
 const blogCatService = {
     getBlogCategories,
+    getBlogCategory,
     createBlogCategory,
+    updateBlogCategory,
     deleteBlogCategory,
 };
 

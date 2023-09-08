@@ -7,6 +7,16 @@ export const getEnquiries = async () => {
     return respone.data;
 };
 
+export const getEnquiry = async (id) => {
+    const respone = await axios.get(`${base_url}/enquiry/${id}`);
+    return respone.data;
+};
+
+export const updateEnquiry = async (id) => {
+    const respone = await axios.delete(`${base_url}/enquiry/update/${id}`, config);
+    return respone.data;
+};
+
 export const deleteEnquiry = async (id) => {
     const respone = await axios.delete(`${base_url}/enquiry/delete/${id}`, config);
     return respone.data;
@@ -14,6 +24,8 @@ export const deleteEnquiry = async (id) => {
 
 const enquiryService = {
     getEnquiries,
+    getEnquiry,
+    updateEnquiry,
     deleteEnquiry,
 };
 
