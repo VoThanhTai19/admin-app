@@ -23,6 +23,8 @@ import AddProduct from './pages/AddProduct';
 import AddCoupon from './pages/AddCoupon';
 import Couponlist from './pages/Couponlist';
 import ViewEnq from './pages/ViewEnq';
+import OrderByUser from './pages/OrderByUser';
+import OrderDetails from './pages/OrderDetails';
 
 function App() {
     return (
@@ -44,7 +46,9 @@ function App() {
                     <Route path="blog-category" element={<AddBlogCat />} />
                     <Route path="blog-category/:id" element={<AddBlogCat />} />
                     <Route path="blog-category-list" element={<BlogCatList />} />
+                    <Route path="user-orders/:id" element={<OrderByUser />} />
                     <Route path="orders" element={<Orders />} />
+                    <Route path="order/:id" element={<OrderDetails />} />
                     <Route path="customers" element={<Customers />} />
                     <Route path="color-list" element={<Colorlist />} />
                     <Route path="color" element={<AddColor />} />

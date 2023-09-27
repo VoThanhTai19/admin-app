@@ -232,13 +232,15 @@ const AddProduct = () => {
                     options={colorOpt}
                 />
                 <div className="error">{formik.touched.color && formik.errors.color}</div>
-                <div>
-                    <ReactQuill
-                        theme="snow"
+                <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                        rows="3"
+                        className="mb-3 form-control"
                         name="description"
-                        onChange={formik.handleChange('description')}
+                        onChange={formik.handleChange}
                         value={formik.values.description}
-                    />
+                    ></textarea>
                 </div>
                 <div className="error">
                     {formik.touched.description && formik.errors.description}

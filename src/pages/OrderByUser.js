@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { Table } from 'antd';
 import { BiEdit } from 'react-icons/bi';
 import { AiFillDelete, AiOutlineEye } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getOrders } from '../features/auth/authSlice';
+import { getOrderByUser } from '../features/auth/authSlice';
 
 const columns = [
     {
@@ -41,12 +41,16 @@ const columns = [
     },
 ];
 
-const Orders = () => {
+const OrderByUser = () => {
     const dispatch = useDispatch();
+    const location = useLocation();
+    const orderState = useSelector((state) => state?.auth?.orderByUser);
+    const getUserId = location.pathname.split('/')[3];
     useEffect(() => {
-        dispatch(getOrders());
-    }, [dispatch]);
-    const orderState = useSelector((state) => state?.auth?.orders);
+        if (getUserId !== undefined) {
+            dispatch(getOrderByUser(getUserId));
+        }
+    }, [dispatch, getUserId]);
     const data = [];
     for (let i = 0; i < orderState?.length; i++) {
         data.push({
@@ -54,7 +58,7 @@ const Orders = () => {
             name: (
                 <>
                     <p className="mb-0">
-                        {orderState[i]?.user.first_name + ' ' + orderState[i]?.user.last_name}
+                        {orderState[i]?.user?.first_name + ' ' + orderState[i]?.user.last_name}
                     </p>
                     <p className="mb-0">{orderState[i]?.user?.email}</p>
                     <a className="text-black" href="tel:+84 778353167">
@@ -93,7 +97,7 @@ const Orders = () => {
     }
     return (
         <div>
-            <h3 className="mb-4 title">Orders</h3>
+            <h3 className="mb-4 title">Order By User</h3>
             <div>
                 <Table columns={columns} dataSource={data} />
             </div>
@@ -101,4 +105,4 @@ const Orders = () => {
     );
 };
 
-export default Orders;
+export default OrderByUser;

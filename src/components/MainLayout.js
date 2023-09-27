@@ -12,6 +12,7 @@ import { SiBrandfolder } from 'react-icons/si';
 import { FaClipboardList } from 'react-icons/fa';
 import { IoIosNotifications } from 'react-icons/io';
 import { ImBlog } from 'react-icons/im';
+import { PiSignOutBold } from 'react-icons/pi';
 import { Layout, Menu, Button, theme } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
@@ -40,6 +41,8 @@ const MainLayout = () => {
                     defaultSelectedKeys={['']}
                     onClick={({ key }) => {
                         if (key === 'singout') {
+                            localStorage.clear();
+                            window.location.reload();
                         } else {
                             navigate(key);
                         }
@@ -156,7 +159,13 @@ const MainLayout = () => {
                             icon: <AiOutlineDashboard className="fs-5" />,
                             label: 'Enquiries',
                         },
+                        {
+                            key: 'signout',
+                            icon: <PiSignOutBold className="fs-5" />,
+                            label: 'Sign Out',
+                        },
                     ]}
+                    PiSignOutBold
                 />
             </Sider>
             <Layout>

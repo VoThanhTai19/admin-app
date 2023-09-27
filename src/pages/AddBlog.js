@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import ReactQuill from 'react-quill';
+import React, { useEffect, useState } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import CustomInput from '../components/CustomInput';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -48,20 +47,21 @@ const AddBlog = () => {
         },
         validationSchema: schema,
         onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
-            // if (getBlogId !== undefined) {
-            //     dispatch(updateBlog({ id: getBlogId, blogData: values }));
-            // } else {
-            //     dispatch(createBlog(values));
-            //     formik.resetForm();
-            // }
-            // setTimeout(() => {
-            //     dispatch(resetState());
-            //     navigate('/admin/blog-list');
-            // }, 3000);
+            // alert(JSON.stringify(values, null, 2));
+            if (getBlogId !== undefined) {
+                dispatch(updateBlog({ id: getBlogId, blogData: values }));
+            } else {
+                dispatch(createBlog(values));
+                formik.resetForm();
+            }
+            setTimeout(() => {
+                dispatch(resetState());
+                navigate('/admin/blog-list');
+            }, 3000);
         },
     });
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const images = [];
     imgState.forEach((i) => {
         images.push({
@@ -110,8 +110,7 @@ const AddBlog = () => {
                         i_id="blog_title"
                         d_class="mb-3 mt-4"
                         name="title"
-                        onChange={formik.handleChange('title')}
-                        onBlur={formik.handleBlur('title')}
+                        onChange={formik.handleChange}
                         value={formik.values.title}
                     />
                     <div className="error">{formik.touched.title && formik.errors.title}</div>
@@ -122,8 +121,7 @@ const AddBlog = () => {
                             id="blogCategory"
                             aria-label="Floating label select example"
                             name="category"
-                            onChange={formik.handleChange('category')}
-                            onBlur={formik.handleBlur('category')}
+                            onChange={formik.handleChange}
                             value={formik.values.category}
                         >
                             <option value="" disabled>
@@ -141,15 +139,17 @@ const AddBlog = () => {
                     </div>
                     <div className="error">{formik.touched.category && formik.errors.category}</div>
 
-                    <div>
-                        <ReactQuill
-                            className="mb-3"
-                            theme="snow"
+                    <div className="form-group">
+                        <label>Description</label>
+                        <textarea
+                            rows="3"
+                            className="mb-3 form-control"
                             name="description"
-                            onChange={formik.handleChange('description')}
+                            onChange={formik.handleChange}
                             value={formik.values.description}
-                        />
+                        ></textarea>
                     </div>
+
                     <div className="error">
                         {formik.touched.description && formik.errors.description}
                     </div>

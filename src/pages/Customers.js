@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Table } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUsers } from '../features/customers/customerSlice';
+import { Link } from 'react-router-dom';
 
 const columns = [
     {
@@ -14,12 +15,16 @@ const columns = [
         sorter: (a, b) => a.name.length - b.name.length,
     },
     {
-        title: 'Product',
-        dataIndex: 'product',
+        title: 'Email',
+        dataIndex: 'email',
     },
     {
         title: 'Status',
         dataIndex: 'status',
+    },
+    {
+        title: 'Action',
+        dataIndex: 'action',
     },
 ];
 
@@ -33,13 +38,18 @@ const Customers = () => {
     const state = useSelector((state) => state.customer.customers);
 
     const data = [];
-    for (let i = 0; i < state.length; i++) {
+    for (let i = 0; i < state?.length; i++) {
         if (state[i].role !== 'admin') {
             data.push({
                 key: i + 1,
                 name: state[i].last_name + ' ' + state[i].first_name,
-                product: state[i].email,
+                email: state[i].email,
                 status: state[i].mobile,
+                action: (
+                    <>
+                        <Link to={`/admin/user-orders/${state[i]?._id}`}>View Orders</Link>
+                    </>
+                ),
             });
         }
     }
